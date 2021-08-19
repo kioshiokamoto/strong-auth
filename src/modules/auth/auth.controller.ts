@@ -1,7 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { CreateUserDto, SendVerificationEmail } from './dto';
+import {
+  ActivateAccount,
+  CreateUserDto,
+  Login,
+  SendVerificationEmail,
+} from './dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -20,5 +25,17 @@ export class AuthController {
   @ApiResponse({ status: 200, description: 'Email sended' })
   sendVerification(@Body() dto: SendVerificationEmail) {
     return this.authService.sendVerification(dto);
+  }
+
+  @Post('/activate-account')
+  @ApiOperation({ summary: 'Activate user account' })
+  activateAccount(@Body() dto: ActivateAccount) {
+    return this.authService.activateAccount(dto);
+  }
+
+  @Post('/login')
+  @ApiOperation({ summary: 'Login to system' })
+  login(@Body() dto: Login, @Req() req) {
+    return this.authService.login(dto, req);
   }
 }

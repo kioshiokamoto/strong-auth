@@ -16,7 +16,7 @@ Tabla usuario tiene:
   - contraseña
   Al hacer post se envia un correo para que cambie el estado is_enabled a 1
 - Ruta de reenvio de access_token para registro
-
+- Ruta para activar usuario
 - Ruta de login
   - Verifica datos y almacena cookies en cliente.
 - Ruta get_accessToken
