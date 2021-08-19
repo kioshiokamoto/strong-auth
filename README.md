@@ -1,15 +1,27 @@
-
 ![Logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/th5xamgrr6se0x5ro4g6.png)
 
-
-# Strong Auth (WIP)
+# Strong Auth
 
 Aplicación de registro, inicio de sesión y perfil de usuario con JWT
+Funciones:
 
+- Registro: Se crea usuario en base de datos en estado `deshablitado`, se envía correo a usuario para que habilite su cuenta.
+  - Beneficio: Evita spam de registro
+- Envio de correo de verificación: En caso el token que se envia al correo en el registro halla vencido, permite el envío de otro token.
+- Activar cuenta: Al hacer click sobre enlace enviado a correo el estado del usuario pasa a `habilitado`
+- Inicio de sesión: Valida información de usuario, registra `refresh token` cookie y envia `access token` a frontend.
+- Obtener access token: En caso el `access token` venza, puede solicitar otro a través del `refresh token` previamente almacenado
+- Olvide contraseña: En caso se haya olvidado la contraseña, se puede enviar un correo electronico con un `access_token` para el reseteo.
+- Reseteo de contraseña: Permite el cambio de contraseña.
+- Deshabilitar cuenta: En caso el usuario quiera dejar de utilizar la aplicacion puede deshabilitar su cuenta.
+- Cerrar sesión: Elimina `refresh token` de cookies
+- Obtener informacion de usuario: Funcionalidad para recuperar datos de usuario de la base de datos.
+- Actualizar informacion de usuario: Funcionalidad para poder cambiar el nombre y avatar de usuario.
 
 ## Tech Stack
 
 **Backend:** Nest, TypeORM, Postgres
+
 ## Screenshots
 
 ![App Screenshot](https://via.placeholder.com/468x300?text=App+Screenshot+Here)
@@ -33,6 +45,8 @@ Instalar dependencias
 ```bash
   npm install
 ```
+
+<strong>Debe actualizar variables de entorno</strong>
 
 Iniciar servidor
 
