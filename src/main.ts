@@ -19,9 +19,8 @@ async function bootstrap() {
   //Configuracion de swagger
   const config = new DocumentBuilder()
     .setTitle('Strong auth')
-    .setDescription('Servicio de login/registro')
+    .setDescription('Auth service with user profile')
     .setVersion('0.0.1')
-    .setBasePath('api')
     .addBearerAuth({ type: 'http', in: 'header' }, 'Authorization')
     .build();
   const document = SwaggerModule.createDocument(app, config);
