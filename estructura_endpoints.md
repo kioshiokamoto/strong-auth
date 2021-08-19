@@ -26,15 +26,14 @@ Tabla usuario tiene:
 - Ruta de resetear contraseña
   - Recibe token y Se permite cambiar contraseña
 - Actualizar perfil
-  - Recibe token y Permite cambiar datos de usuario - no image
-- Actualizar imagen de perfil
-  - Recibe token y Permite el cambio de imagen de perfil
+  - Recibe token y Permite cambiar datos de usuario
 - Obtener informacion de usuario
   - Recibe token y retorna informacion de usuario
+- Cerrar sesion
 - Deshabilitar cuenta
   - Recibe token y cambia estado de usuario is_enabled a 0
-- Eliminar cuenta
-  - Elimina usuario de bd
+
+Futuro:
 - Registro google
   - Similar a registro/login juntos
 - Registro facebook

@@ -22,14 +22,18 @@ export class AuthModule implements NestModule {
         path: '/auth/reset-password',
         method: RequestMethod.POST,
       },
-      // {
-      //   path: '/user/info',
-      //   method: RequestMethod.GET,
-      // },
-      // {
-      //   path: '/user/update',
-      //   method: RequestMethod.ALL,
-      // },
+      {
+        path: '/auth/disable-account',
+        method: RequestMethod.GET,
+      },
+      {
+        path: '/auth/info',
+        method: RequestMethod.GET,
+      },
+      {
+        path: '/auth/update',
+        method: RequestMethod.ALL,
+      },
     );
   }
 }

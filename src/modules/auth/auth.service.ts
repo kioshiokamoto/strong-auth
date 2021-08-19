@@ -1,6 +1,9 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 import User from 'src/entity/user.entity';
+import sendEmail from 'src/utils/sendMail';
 import { Repository } from 'typeorm';
 import {
   ActivateAccount,
@@ -8,13 +11,10 @@ import {
   Login,
   ResetPassword,
   SendEmail,
+  UpdateUser,
 } from './dto';
-import * as jwt from 'jsonwebtoken';
-import * as bcrypt from 'bcrypt';
-import sendEmail from 'src/utils/sendMail';
 
 const { CLIENT_URL } = process.env;
-const logger = new Logger();
 @Injectable()
 export class AuthService {
   constructor(
@@ -216,6 +216,126 @@ export class AuthService {
       await user.save();
       return {
         message: 'Password has been updated',
+      };
+    } catch (error) {
+      return error;
+    }
+  }
+  async disableAccount(req: any) {
+    try {
+      const user = await this.userRepository.findOne({ id: req?.user.id });
+      if (!user) {
+        throw new HttpException(
+          { status: HttpStatus.NOT_FOUND, error: 'User does not exists' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      if (user.is_enabled === false) {
+        throw new HttpException(
+          {
+            status: HttpStatus.UNAUTHORIZED,
+            error: 'Please activate your account first.',
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+      user.is_enabled = false;
+      await user.save();
+
+      // Delete cookies
+      req.res.setHeader('Access-Control-Allow-Credentials', 'true');
+      req.res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Cookie,Set-Cookie,Accept,Content-Type',
+      );
+
+      setUserCookies(10, req.res, '');
+      return {
+        message: 'Account disabled successfully',
+      };
+    } catch (error) {
+      return error;
+    }
+  }
+  async logout(req: any) {
+    try {
+      req.res.setHeader('Access-Control-Allow-Credentials', 'true');
+      req.res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Cookie,Set-Cookie,Accept,Content-Type',
+      );
+
+      setUserCookies(10, req.res, '');
+
+      return {
+        message: 'Logged out, see you',
+      };
+    } catch (error) {
+      return error;
+    }
+  }
+  async getUserInfo(req) {
+    try {
+      const user = await this.userRepository.findOne({ id: req?.user.id });
+      if (!user) {
+        throw new HttpException(
+          { status: HttpStatus.NOT_FOUND, error: 'User does not exists' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      if (user.is_enabled === false) {
+        throw new HttpException(
+          {
+            status: HttpStatus.UNAUTHORIZED,
+            error: 'Please activate your account first.',
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+      return user;
+    } catch (error) {
+      return error;
+    }
+  }
+  async updateUser(dto: UpdateUser, req: any) {
+    try {
+      const { names, avatar } = dto;
+      if (Object.keys(dto).length === 0) {
+        throw new HttpException(
+          {
+            status: HttpStatus.BAD_REQUEST,
+            error: 'You must submit at least one field',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const user = await this.userRepository.findOne({ id: req.user.id });
+      if (!user) {
+        throw new HttpException(
+          { status: HttpStatus.NOT_FOUND, error: 'User does not exists' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      if (user.is_enabled === false) {
+        throw new HttpException(
+          {
+            status: HttpStatus.UNAUTHORIZED,
+            error: 'Please activate your account first.',
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+
+      if (names) {
+        user.names = names;
+      }
+      if (avatar) {
+        user.avatar = avatar;
+      }
+      await user.save();
+      return {
+        message: 'User updated successfully',
       };
     } catch (error) {
       return error;
