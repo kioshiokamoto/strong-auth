@@ -1,6 +1,6 @@
 ![strong-auth](https://socialify.git.ci/kioshiokamoto/strong-auth/image?description=1&font=Raleway&language=1&logo=https%3A%2F%2Fnext-auth.js.org%2Fimg%2Flogo%2Flogo-sm.png&owner=1&pattern=Charlie%20Brown&theme=Light)
 
-# Strong Auth
+# Strong User Auth
 
 Aplicación de registro, inicio de sesión y perfil de usuario con JWT
 Funciones:
