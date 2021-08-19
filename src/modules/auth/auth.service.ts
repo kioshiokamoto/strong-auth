@@ -6,7 +6,8 @@ import {
   ActivateAccount,
   CreateUserDto,
   Login,
-  SendVerificationEmail,
+  ResetPassword,
+  SendEmail,
 } from './dto';
 import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
@@ -47,7 +48,7 @@ export class AuthService {
       return error;
     }
   }
-  async sendVerification(dto: SendVerificationEmail) {
+  async sendVerification(dto: SendEmail) {
     try {
       const { email } = dto;
       const user = await this.userRepository.findOne({ email });
@@ -147,6 +148,79 @@ export class AuthService {
       return error;
     }
   }
+  async getAccessToken(req: any) {
+    try {
+      const rf_token = req.cookies.refreshtoken;
+      if (!rf_token) {
+        throw new HttpException(
+          {
+            status: HttpStatus.UNAUTHORIZED,
+            error: 'Please login first',
+          },
+          HttpStatus.UNAUTHORIZED,
+        );
+      }
+      const access_token = jwt.verify(
+        rf_token,
+        process.env.REFRESH_TOKEN_SECRET,
+        (err, user) => {
+          if (err) {
+            throw new HttpException(
+              {
+                status: HttpStatus.UNAUTHORIZED,
+                error: 'Please login first',
+              },
+              HttpStatus.UNAUTHORIZED,
+            );
+          }
+          return createAccessToken({ id: user.id });
+        },
+      );
+      return { access_token };
+    } catch (error) {
+      return error;
+    }
+  }
+  async forgotPassword(dto: SendEmail) {
+    try {
+      const { email } = dto;
+      const user = await this.userRepository.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          { status: HttpStatus.NOT_FOUND, error: 'User does not exists' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const access_token = createAccessToken({ id: user.id });
+      const url = `${CLIENT_URL}/user/reset/${access_token}`;
+      sendEmail(email, url, 'Reset here');
+      return {
+        message: 'Please go to your mail and reset your password',
+      };
+    } catch (error) {
+      return error;
+    }
+  }
+  async resetPassword(dto: ResetPassword, req: any) {
+    try {
+      const { password } = dto;
+      const user = await this.userRepository.findOne({ id: req?.user.id });
+      if (!user) {
+        throw new HttpException(
+          { status: HttpStatus.NOT_FOUND, error: 'User does not exists' },
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const passwordHash = await bcrypt.hash(password, 6);
+      user.password = passwordHash;
+      await user.save();
+      return {
+        message: 'Password has been updated',
+      };
+    } catch (error) {
+      return error;
+    }
+  }
 }
 
 export function createActivationToken(payload) {
@@ -168,7 +242,7 @@ export function setUserCookies(time: any, res: any, refresh_token: any) {
   res.cookie('refreshtoken', refresh_token, {
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000,
-    path: '/api/user/get_access_token',
+    path: '/api/auth/get-access-token',
     sameSite: 'none',
     secure: true,
   });

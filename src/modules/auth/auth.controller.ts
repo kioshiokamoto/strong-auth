@@ -1,11 +1,17 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import {
   ActivateAccount,
   CreateUserDto,
   Login,
-  SendVerificationEmail,
+  ResetPassword,
+  SendEmail,
 } from './dto';
 
 @ApiTags('Auth')
@@ -23,7 +29,7 @@ export class AuthController {
   @Post('/send-email-verification')
   @ApiOperation({ summary: 'Send email verification' })
   @ApiResponse({ status: 200, description: 'Email sended' })
-  sendVerification(@Body() dto: SendVerificationEmail) {
+  sendVerification(@Body() dto: SendEmail) {
     return this.authService.sendVerification(dto);
   }
 
@@ -37,5 +43,24 @@ export class AuthController {
   @ApiOperation({ summary: 'Login to system' })
   login(@Body() dto: Login, @Req() req) {
     return this.authService.login(dto, req);
+  }
+
+  @Get('/get-access-token')
+  @ApiOperation({ summary: 'Get access token' })
+  getAccessToken(@Req() req) {
+    return this.authService.getAccessToken(req);
+  }
+
+  @Post('/forgot-password')
+  @ApiOperation({ summary: 'Send email to reset password' })
+  forgotPassword(@Body() dto: SendEmail) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Post('/reset-password')
+  @ApiBearerAuth('Authorization')
+  @ApiOperation({ summary: 'Reset your account password ' })
+  resetPassword(@Body() dto: ResetPassword, @Req() req) {
+    return this.authService.resetPassword(dto, req);
   }
 }

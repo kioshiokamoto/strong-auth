@@ -5,6 +5,10 @@ import {
   SwaggerModule,
 } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
+import * as helmet from 'helmet';
+import * as bodyParser from 'body-parser';
+import * as cookieParser from 'cookie-parser';
+import * as rateLimit from 'express-rate-limit';
 import { AppModule } from './modules/app.module';
 
 async function bootstrap() {
@@ -35,6 +39,39 @@ async function bootstrap() {
   };
 
   SwaggerModule.setup('/', app, document, customOptions);
+
+  //Configuracion de middlewares y cors
+  app
+    .use(helmet())
+    .use(cookieParser())
+    .use(bodyParser.json())
+    .use(
+      bodyParser.urlencoded({
+        extended: true,
+      }),
+    )
+    .use(
+      rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutos
+        max: 100, //  limitar cada hasta 100 solicitudes por ventana
+      }),
+    );
+  const corsOptions = {
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'X-Access-Token',
+      'Authorization',
+    ],
+    credentials: true,
+    methods: 'GET,HEAD,OPTIONS,PUT,PATCH,POST,DELETE',
+    origin: ['http://127.0.0.1:3000', 'http://localhost:3000'],
+    preflightContinue: false,
+  };
+  app.enableCors(corsOptions);
+
   await app.listen(3000);
 }
 bootstrap();

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, Length } from 'class-validator';
-export class SendVerificationEmail {
+export class SendEmail {
   @ApiProperty({
     description: 'Dirección de correo electrónico',
     example: 'johndoe@email.com',
